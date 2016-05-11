@@ -1,0 +1,53 @@
+<!--
+ Copyright 2016 Google Inc.
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+      http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<manifest package="com.example.android.wearable.complicationsdataprovider"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature android:name="android.hardware.type.watch"/>
+    <application android:allowBackup="true"
+                 android:icon="@mipmap/ic_launcher"
+                 android:label="@string/app_name"
+                 android:supportsRtl="true"
+                 android:theme="@android:style/Theme.DeviceDefault">
+
+        <service android:name=".RandomNumberProviderService"
+                 android:label="@string/complications_provider_random_number"
+                 android:icon="@drawable/ic_watch_white">
+
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+
+            <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                       android:value="RANGED_VALUE,SHORT_TEXT,LONG_TEXT"/>
+            <!--
+            When your complication data provider is active, UPDATE_PERIOD_SECONDS specifies how
+            often you want the system to check for updates to the data. In this case, the time is
+            specified to a relatively short 120 seconds, so we can observe the result of this code
+            lab. In everyday use, developers should consider intervals in the order of minutes.
+            Also, remember that this is only a guidance for the system. Android Wear may update less
+            frequently.
+
+            If your app needs to push updates instead of updating on a regular schedule, you should
+            set this value to 0 and use ProviderUpdateRequester.requestUpdate() to trigger an update
+            request when you need one.
+            -->
+            <meta-data android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                       android:value="120"/>
+        </service>
+    </application>
+
+</manifest>
