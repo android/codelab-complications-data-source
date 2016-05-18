@@ -19,6 +19,8 @@ import android.support.wearable.complications.ComplicationManager;
 import android.support.wearable.complications.ComplicationProviderService;
 import android.util.Log;
 
+import java.util.Locale;
+
 public class RandomNumberProviderService extends ComplicationProviderService {
 
     private static final String TAG = "RandomNumberProvider";
