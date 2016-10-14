@@ -26,9 +26,11 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
 
-        <service android:name=".RandomNumberProviderService"
-                 android:label="@string/complications_provider_random_number"
-                 android:icon="@drawable/ic_watch_white">
+        <service
+            android:name=".RandomNumberProviderService"
+            android:label="@string/complications_provider_random_number"
+            android:icon="@drawable/ic_watch_white"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
 
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
