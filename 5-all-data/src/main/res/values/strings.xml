@@ -16,6 +16,6 @@
 -->
 
 <resources>
-    <string name="app_name">Complications Data Provider</string>
-    <string name="complications_provider_random_number">Random Number</string>
+    <string name="app_name">Complications Data Provider Codelab</string>
+    <string name="complications_provider_service_label">Complication Provider Service</string>
 </resources>
