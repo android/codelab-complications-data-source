@@ -17,7 +17,6 @@
 <manifest package="com.example.android.wearable.complicationsdataprovider"
           xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-feature android:name="android.hardware.type.watch"/>
-
     <application android:allowBackup="true"
                  android:icon="@mipmap/ic_launcher"
                  android:label="@string/app_name"
@@ -29,19 +28,35 @@
             android:icon="@drawable/ic_watch_white"
             android:label="@string/complications_provider_service_label"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
-                android:value="SMALL_IMAGE"/>
+                android:value="SHORT_TEXT,LONG_TEXT,RANGED_VALUE"/>
 
+            <!--
+            When your complication data provider is active, UPDATE_PERIOD_SECONDS specifies how
+            often you want the system to check for updates to the data. A zero value means you
+            will manually trigger updates.
+
+            In general, you want to manually trigger updates only when your complication data
+            actually changes via ProviderUpdateRequester (check
+            ComplicationTapBroadcastReceiver.java for an example).
+
+            If you do decide to use UPDATE_PERIOD_SECONDS, set the interval in the order of minutes.
+            A good value might be 600 seconds (10 minutes) if you need updates pulled often.
+
+            Also, remember that this is only a guidance for the system. Android Wear may update less
+            frequently.
+            -->
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
-                android:value="600"/>
-        </service>
+                android:value="0"/>
 
+        </service>
         <receiver android:name=".ComplicationTapBroadcastReceiver"/>
     </application>
 
