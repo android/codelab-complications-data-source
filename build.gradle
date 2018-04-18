@@ -15,11 +15,33 @@
  */
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
+    ext {
+
+        // App version
+        versionName = '1.0.0'
+        versionCode = 1
+
+        // SDK and tools
+        buildToolsVersion = '27.0.3'
+        compileSdkVersion = 'android-P'
+        minSdkVersion = 23
+        targetSdkVersion = 'P'
+
+        // App dependencies
+        androidGradlePluginVersion = '3.1.0'
+
+        // App dependencies
+        supportLibraryVersion = '27.1.0'
+        googlePlayServicesClientVersion = "15.0.0"
+        wearableSupportLibraryVersion = "2.3.0"
+    }
+
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath "com.android.tools.build:gradle:$androidGradlePluginVersion"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -28,6 +50,8 @@ buildscript {
 
 allprojects {
     repositories {
+        google()
+        mavenCentral()
         jcenter()
     }
 }
@@ -35,3 +59,4 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+

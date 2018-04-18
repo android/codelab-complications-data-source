@@ -2,16 +2,19 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion rootProject.compileSdkVersion
+
+    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
         applicationId "com.example.android.wearable.complicationsdataprovider"
-        minSdkVersion 23
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        versionCode rootProject.versionCode
+        versionName rootProject.versionName
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -21,9 +24,12 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-
-    provided 'com.google.android.wearable:wearable:2.0.1'
-    compile 'com.google.android.support:wearable:2.0.1'
-    compile 'com.google.android.gms:play-services-wearable:10.2.4'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // UI
+    implementation "com.android.support:percent:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
+    implementation "com.google.android.gms:play-services-wearable:$rootProject.googlePlayServicesClientVersion"
+    implementation "com.google.android.support:wearable:$rootProject.wearableSupportLibraryVersion"
+    compileOnly "com.google.android.wearable:wearable:$rootProject.wearableSupportLibraryVersion"
 }
