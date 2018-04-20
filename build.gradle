@@ -23,9 +23,9 @@ buildscript {
 
         // SDK and tools
         buildToolsVersion = '27.0.3'
-        compileSdkVersion = 'android-P'
+        compileSdkVersion = 26
         minSdkVersion = 23
-        targetSdkVersion = 'P'
+        targetSdkVersion = 26
 
         // App dependencies
         androidGradlePluginVersion = '3.1.0'
