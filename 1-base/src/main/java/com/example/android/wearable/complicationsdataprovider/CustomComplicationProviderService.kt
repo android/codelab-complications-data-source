@@ -13,27 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.android.wearable.complicationsdataprovider
 
-package com.example.android.wearable.complicationsdataprovider;
-
-import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.SharedPreferences;
-import android.support.wearable.complications.ComplicationData;
-import android.support.wearable.complications.ComplicationManager;
-import android.support.wearable.complications.ComplicationProviderService;
-import android.support.wearable.complications.ComplicationText;
-import android.util.Log;
-
-import java.util.Locale;
+import android.support.wearable.complications.ComplicationManager
+import android.support.wearable.complications.ComplicationProviderService
+import android.util.Log
 
 /**
  * Example watch face complication data provider provides a number that can be incremented on tap.
  */
-public class CustomComplicationProviderService extends ComplicationProviderService {
-
-    private static final String TAG = "ComplicationProvider";
-
+class CustomComplicationProviderService : ComplicationProviderService() {
     /*
      * Called when a complication has been activated. The method is for any one-time
      * (per complication) set-up.
@@ -41,10 +30,12 @@ public class CustomComplicationProviderService extends ComplicationProviderServi
      * You can continue sending data for the active complicationId until onComplicationDeactivated()
      * is called.
      */
-    @Override
-    public void onComplicationActivated(
-            int complicationId, int dataType, ComplicationManager complicationManager) {
-        Log.d(TAG, "onComplicationActivated(): " + complicationId);
+    override fun onComplicationActivated(
+        complicationId: Int,
+        dataType: Int,
+        complicationManager: ComplicationManager
+    ) {
+        Log.d(TAG, "onComplicationActivated(): $complicationId")
     }
 
     /*
@@ -57,18 +48,22 @@ public class CustomComplicationProviderService extends ComplicationProviderServi
      *   4. You triggered an update from your own class via the
      *       ProviderUpdateRequester.requestUpdate() method.
      */
-    @Override
-    public void onComplicationUpdate(
-            int complicationId, int dataType, ComplicationManager complicationManager) {
-        Log.d(TAG, "onComplicationUpdate() id: " + complicationId);
-
+    override fun onComplicationUpdate(
+        complicationId: Int,
+        dataType: Int,
+        complicationManager: ComplicationManager
+    ) {
+        Log.d(TAG, "onComplicationUpdate() id: $complicationId")
     }
 
     /*
      * Called when the complication has been deactivated.
      */
-    @Override
-    public void onComplicationDeactivated(int complicationId) {
-        Log.d(TAG, "onComplicationDeactivated(): " + complicationId);
+    override fun onComplicationDeactivated(complicationId: Int) {
+        Log.d(TAG, "onComplicationDeactivated(): $complicationId")
+    }
+
+    companion object {
+        private const val TAG = "ComplicationProvider"
     }
 }
