@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 apply plugin: 'com.android.application'
-
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
-
-    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
         applicationId "com.example.android.wearable.complicationsdataprovider"
@@ -36,14 +34,24 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     // UI
-    implementation "com.android.support:percent:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
+    implementation "androidx.core:core-ktx:$rootProject.coreKtxVersion"
+    implementation "androidx.percentlayout:percentlayout:$rootProject.androidxPercentlayoutVersion"
+    implementation "androidx.recyclerview:recyclerview:$rootProject.androidxRecyclerviewVersion"
     implementation "com.google.android.gms:play-services-wearable:$rootProject.googlePlayServicesClientVersion"
     implementation "com.google.android.support:wearable:$rootProject.wearableSupportLibraryVersion"
     compileOnly "com.google.android.wearable:wearable:$rootProject.wearableSupportLibraryVersion"
