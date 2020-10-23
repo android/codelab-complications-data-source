@@ -1,6 +1,1 @@
-include ':1-base',
-        ':2-short-data',
-        ':3-trigger-updates',
-        ':4-long-data',
-        ':5-ranged-data',
-        ':6-all-data'
+include ':base', 'complete'
