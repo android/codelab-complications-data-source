@@ -20,8 +20,8 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.support.wearable.complications.ProviderUpdateRequester
 import androidx.core.content.edit
+import androidx.wear.complications.ProviderUpdateRequester
 
 /**
  * Simple [BroadcastReceiver] subclass for asynchronously incrementing an integer for any

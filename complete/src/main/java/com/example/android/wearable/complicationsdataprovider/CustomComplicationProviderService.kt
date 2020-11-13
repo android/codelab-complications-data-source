@@ -16,11 +16,9 @@
 package com.example.android.wearable.complicationsdataprovider
 
 import android.content.ComponentName
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationManager
-import android.support.wearable.complications.ComplicationProviderService
-import android.support.wearable.complications.ComplicationText
 import android.util.Log
+import androidx.wear.complications.ComplicationProviderService
+import androidx.wear.complications.data.*
 import java.util.*
 
 /**
@@ -34,11 +32,8 @@ class CustomComplicationProviderService : ComplicationProviderService() {
      * You can continue sending data for the active complicationId until onComplicationDeactivated()
      * is called.
      */
-    override fun onComplicationActivated(
-        complicationId: Int,
-        dataType: Int,
-        complicationManager: ComplicationManager
-    ) {
+    override fun onComplicationActivated(complicationId: Int, type: Int) {
+        super.onComplicationActivated(complicationId, type)
         Log.d(TAG, "onComplicationActivated(): $complicationId")
     }
 
@@ -54,8 +49,8 @@ class CustomComplicationProviderService : ComplicationProviderService() {
      */
     override fun onComplicationUpdate(
         complicationId: Int,
-        dataType: Int,
-        complicationManager: ComplicationManager
+        type: ComplicationType,
+        resultCallback: ComplicationUpdateCallback
     ) {
         Log.d(TAG, "onComplicationUpdate() id: $complicationId")
 
@@ -77,38 +72,56 @@ class CustomComplicationProviderService : ComplicationProviderService() {
                 .getPreferenceKey(thisProvider, complicationId), 0
         )
         val numberText = String.format(Locale.getDefault(), "%d!", number)
-        val complicationData = when (dataType) {
-            ComplicationData.TYPE_SHORT_TEXT -> ComplicationData
-                .Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(ComplicationText.plainText(numberText))
+        val complicationData = when (type) {
+            ComplicationType.SHORT_TEXT -> ShortTextComplicationData
+                .Builder(ComplicationText.plain(numberText))
                 .setTapAction(complicationPendingIntent)
                 .build()
-            ComplicationData.TYPE_LONG_TEXT -> ComplicationData
-                .Builder(ComplicationData.TYPE_LONG_TEXT)
-                .setLongText(ComplicationText.plainText("Number: $numberText"))
+            ComplicationType.LONG_TEXT -> LongTextComplicationData
+                .Builder(ComplicationText.plain("Number: $numberText"))
                 .setTapAction(complicationPendingIntent)
                 .build()
-            ComplicationData.TYPE_RANGED_VALUE -> ComplicationData
-                .Builder(ComplicationData.TYPE_RANGED_VALUE)
-                .setValue(number.toFloat())
-                .setMinValue(0f)
-                .setMaxValue(ComplicationTapBroadcastReceiver.MAX_NUMBER.toFloat())
-                .setShortText(ComplicationText.plainText(numberText))
+            ComplicationType.RANGED_VALUE -> RangedValueComplicationData
+                .Builder(
+                    value = number.toFloat(),
+                    min = 0f,
+                    max = ComplicationTapBroadcastReceiver.MAX_NUMBER.toFloat()
+                )
+                .setText(ComplicationText.plain(numberText))
                 .setTapAction(complicationPendingIntent)
                 .build()
             else -> {
                 if (Log.isLoggable(TAG, Log.WARN)) {
-                    Log.w(TAG, "Unexpected complication type $dataType")
+                    Log.w(TAG, "Unexpected complication type $type")
                 }
                 null
             }
         }
-        if (complicationData != null) {
-            complicationManager.updateComplicationData(complicationId, complicationData)
-        } else {
-            // If no data is sent, we still need to inform the ComplicationManager, so the update
-            // job can finish and the wake lock isn't held any longer than necessary.
-            complicationManager.noUpdateRequired(complicationId)
+        resultCallback.onUpdateComplication(complicationData)
+    }
+
+    override fun getPreviewData(type: ComplicationType): ComplicationData? {
+        return when (type) {
+            ComplicationType.SHORT_TEXT -> ShortTextComplicationData
+                .Builder(ComplicationText.plain("12!"))
+                .build()
+            ComplicationType.LONG_TEXT -> LongTextComplicationData
+                .Builder(ComplicationText.plain("Number: 12"))
+                .build()
+            ComplicationType.RANGED_VALUE -> RangedValueComplicationData
+                .Builder(
+                    value = 12f,
+                    min = 0f,
+                    max = ComplicationTapBroadcastReceiver.MAX_NUMBER.toFloat()
+                )
+                .setText(ComplicationText.plain("12!"))
+                .build()
+            else -> {
+                if (Log.isLoggable(TAG, Log.WARN)) {
+                    Log.w(TAG, "Unexpected complication type $type")
+                }
+                null
+            }
         }
     }
 

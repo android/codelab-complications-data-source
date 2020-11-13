@@ -53,6 +53,7 @@ dependencies {
     implementation "androidx.percentlayout:percentlayout:$rootProject.androidxPercentlayoutVersion"
     implementation "androidx.recyclerview:recyclerview:$rootProject.androidxRecyclerviewVersion"
     implementation "com.google.android.gms:play-services-wearable:$rootProject.googlePlayServicesClientVersion"
-    implementation "com.google.android.support:wearable:$rootProject.wearableSupportLibraryVersion"
+    implementation "androidx.wear:wear:1.1.0"
+    implementation "androidx.wear:wear-complications-provider:1.0.0-alpha02"
     compileOnly "com.google.android.wearable:wearable:$rootProject.wearableSupportLibraryVersion"
 }
