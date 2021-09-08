@@ -28,6 +28,11 @@ android {
         versionName rootProject.versionName
     }
 
+    lintOptions {
+        warningsAsErrors true
+        ignore "OldTargetApi" // API >30 doesn't exist for Wear OS
+    }
+
     buildTypes {
         release {
             minifyEnabled false

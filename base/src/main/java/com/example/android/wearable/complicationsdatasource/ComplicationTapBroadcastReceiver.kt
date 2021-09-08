@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.wearable.complicationsdataprovider
+package com.example.android.wearable.complicationsdatasource
 
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -30,13 +30,13 @@ import androidx.core.content.edit
 class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val extras = intent.extras ?: return
-        val provider = extras.getParcelable<ComponentName>(EXTRA_PROVIDER_COMPONENT) ?: return
+        val dataSource = extras.getParcelable<ComponentName>(EXTRA_DATA_SOURCE_COMPONENT) ?: return
         val complicationId = extras.getInt(EXTRA_COMPLICATION_ID)
 
         // Retrieve data via SharedPreferences.
-        val preferenceKey = getPreferenceKey(provider, complicationId)
+        val preferenceKey = getPreferenceKey(dataSource, complicationId)
         val sharedPreferences =
-            context.getSharedPreferences(COMPLICATION_PROVIDER_PREFERENCES_FILE_KEY, 0)
+            context.getSharedPreferences(COMPLICATION_DATA_SOURCE_PREFERENCES_FILE_KEY, 0)
         var value = sharedPreferences.getInt(preferenceKey, 0)
 
         // Update data for complication.
@@ -45,23 +45,23 @@ class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        private const val EXTRA_PROVIDER_COMPONENT =
-            "com.example.android.wearable.watchface.provider.action.PROVIDER_COMPONENT"
+        private const val EXTRA_DATA_SOURCE_COMPONENT =
+            "com.example.android.wearable.complicationsdatasource.action.DATA_SOURCE_COMPONENT"
         private const val EXTRA_COMPLICATION_ID =
-            "com.example.android.wearable.watchface.provider.action.COMPLICATION_ID"
+            "com.example.android.wearable.complicationsdatasource.action.COMPLICATION_ID"
         const val MAX_NUMBER = 20
-        const val COMPLICATION_PROVIDER_PREFERENCES_FILE_KEY =
-            "com.example.android.wearable.watchface.COMPLICATION_PROVIDER_PREFERENCES_FILE_KEY"
+        const val COMPLICATION_DATA_SOURCE_PREFERENCES_FILE_KEY =
+            "com.example.android.wearable.complicationsdatasource.COMPLICATION_DATA_SOURCE_PREFERENCES_FILE_KEY"
 
         /**
          * Returns a pending intent, suitable for use as a tap intent, that causes a complication to be
          * toggled and updated.
          */
         fun getToggleIntent(
-            context: Context, provider: ComponentName, complicationId: Int
+            context: Context, dataSource: ComponentName, complicationId: Int
         ): PendingIntent {
             val intent = Intent(context, ComplicationTapBroadcastReceiver::class.java)
-            intent.putExtra(EXTRA_PROVIDER_COMPONENT, provider)
+            intent.putExtra(EXTRA_DATA_SOURCE_COMPONENT, dataSource)
             intent.putExtra(EXTRA_COMPLICATION_ID, complicationId)
 
             // Pass complicationId as the requestCode to ensure that different complications get
@@ -75,8 +75,8 @@ class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
          * Returns the key for the shared preference used to hold the current state of a given
          * complication.
          */
-        fun getPreferenceKey(provider: ComponentName, complicationId: Int): String {
-            return provider.className + complicationId
+        fun getPreferenceKey(dataSource: ComponentName, complicationId: Int): String {
+            return dataSource.className + complicationId
         }
     }
 }

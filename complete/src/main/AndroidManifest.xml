@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.wearable.complicationsdataprovider">
+    package="com.example.android.wearable.complicationsdatasource">
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -26,9 +26,9 @@
         android:theme="@android:style/Theme.DeviceDefault">
 
         <service
-            android:name=".CustomComplicationProviderService"
+            android:name="com.example.android.wearable.complicationsdatasource.CustomComplicationDataSourceService"
             android:icon="@drawable/ic_watch_white"
-            android:label="@string/complications_provider_service_label"
+            android:label="@string/complications_data_sources_service_label"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
@@ -58,7 +58,7 @@
                 android:value="0" />
 
         </service>
-        <receiver android:name=".ComplicationTapBroadcastReceiver" />
+        <receiver android:name="com.example.android.wearable.complicationsdatasource.ComplicationTapBroadcastReceiver" />
     </application>
 
 </manifest>

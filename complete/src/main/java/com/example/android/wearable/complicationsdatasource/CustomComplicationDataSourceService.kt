@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.wearable.complicationsdataprovider
+package com.example.android.wearable.complicationsdatasource
 
 import android.content.ComponentName
 import android.support.wearable.complications.ComplicationData
@@ -24,9 +24,9 @@ import android.util.Log
 import java.util.*
 
 /**
- * Example watch face complication data provider provides a number that can be incremented on tap.
+ * Example watch face complication data source provides a number that can be incremented on tap.
  */
-class CustomComplicationProviderService : ComplicationProviderService() {
+class CustomComplicationDataSourceService : ComplicationProviderService() {
     /*
      * Called when a complication has been activated. The method is for any one-time
      * (per complication) set-up.
@@ -43,11 +43,11 @@ class CustomComplicationProviderService : ComplicationProviderService() {
     }
 
     /*
-     * Called when the complication needs updated data from your provider. There are four scenarios
-     * when this will happen:
+     * Called when the complication needs updated data from your data source. There are four
+     * scenarios when this will happen:
      *
-     *   1. An active watch face complication is changed to use this provider
-     *   2. A complication using this provider becomes active
+     *   1. An active watch face complication is changed to use this data source
+     *   2. A complication using this data source becomes active
      *   3. The period of time you specified in the manifest has elapsed (UPDATE_PERIOD_SECONDS)
      *   4. You triggered an update from your own class via the
      *       ProviderUpdateRequester.requestUpdate() method.
@@ -60,21 +60,21 @@ class CustomComplicationProviderService : ComplicationProviderService() {
         Log.d(TAG, "onComplicationUpdate() id: $complicationId")
 
         // Create Tap Action so that the user can trigger an update by tapping the complication.
-        val thisProvider = ComponentName(this, javaClass)
+        val thisDataSource = ComponentName(this, javaClass)
         // We pass the complication id, so we can only update the specific complication tapped.
         val complicationPendingIntent =
             ComplicationTapBroadcastReceiver.getToggleIntent(
-                this, thisProvider, complicationId
+                this, thisDataSource, complicationId
             )
 
         // Retrieves your data, in this case, we grab an incrementing number from SharedPrefs.
         val preferences = getSharedPreferences(
-            ComplicationTapBroadcastReceiver.COMPLICATION_PROVIDER_PREFERENCES_FILE_KEY,
+            ComplicationTapBroadcastReceiver.COMPLICATION_DATA_SOURCE_PREFERENCES_FILE_KEY,
             0
         )
         val number = preferences.getInt(
             ComplicationTapBroadcastReceiver
-                .getPreferenceKey(thisProvider, complicationId), 0
+                .getPreferenceKey(thisDataSource, complicationId), 0
         )
         val numberText = String.format(Locale.getDefault(), "%d!", number)
         val complicationData = when (dataType) {
@@ -120,6 +120,6 @@ class CustomComplicationProviderService : ComplicationProviderService() {
     }
 
     companion object {
-        private const val TAG = "ComplicationProvider"
+        private const val TAG = "CustomComplicationDataSourceService"
     }
 }

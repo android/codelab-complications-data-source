@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.wearable.complicationsdataprovider
+package com.example.android.wearable.complicationsdatasource
 
 import android.support.wearable.complications.ComplicationManager
 import android.support.wearable.complications.ComplicationProviderService
 import android.util.Log
 
 /**
- * Example watch face complication data provider provides a number that can be incremented on tap.
+ * Example watch face complication data source provides a number that can be incremented on tap.
  */
-class CustomComplicationProviderService : ComplicationProviderService() {
+class CustomComplicationDataSourceService : ComplicationProviderService() {
     /*
      * Called when a complication has been activated. The method is for any one-time
      * (per complication) set-up.
@@ -39,11 +39,11 @@ class CustomComplicationProviderService : ComplicationProviderService() {
     }
 
     /*
-     * Called when the complication needs updated data from your provider. There are four scenarios
-     * when this will happen:
+     * Called when the complication needs updated data from your data source. There are four
+     * scenarios when this will happen:
      *
-     *   1. An active watch face complication is changed to use this provider
-     *   2. A complication using this provider becomes active
+     *   1. An active watch face complication is changed to use this data source
+     *   2. A complication using this data source becomes active
      *   3. The period of time you specified in the manifest has elapsed (UPDATE_PERIOD_SECONDS)
      *   4. You triggered an update from your own class via the
      *       ProviderUpdateRequester.requestUpdate() method.
@@ -64,6 +64,6 @@ class CustomComplicationProviderService : ComplicationProviderService() {
     }
 
     companion object {
-        private const val TAG = "ComplicationProvider"
+        private const val TAG = "CustomComplicationDataSourceService"
     }
 }
