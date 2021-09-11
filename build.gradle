@@ -29,10 +29,7 @@ buildscript {
         // App dependencies
         kotlinVersion = '1.5.21'
         coreKtxVersion = '1.6.0'
-        androidxPercentlayoutVersion = '1.0.0'
-        androidxRecyclerviewVersion = '1.2.1'
-        supportLibraryVersion = '28.0.0'
-        googlePlayServicesClientVersion = '17.1.0'
+
         wearableSupportLibraryVersion = '2.8.1'
     }
 
