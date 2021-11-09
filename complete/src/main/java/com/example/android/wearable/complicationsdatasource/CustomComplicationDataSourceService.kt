@@ -16,17 +16,22 @@
 package com.example.android.wearable.complicationsdatasource
 
 import android.content.ComponentName
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationManager
-import android.support.wearable.complications.ComplicationProviderService
-import android.support.wearable.complications.ComplicationText
 import android.util.Log
-import java.util.*
+import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
+import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import java.util.Locale
 
 /**
  * Example watch face complication data source provides a number that can be incremented on tap.
  */
-class CustomComplicationDataSourceService : ComplicationProviderService() {
+class CustomComplicationDataSourceService : ComplicationDataSourceService() {
+
     /*
      * Called when a complication has been activated. The method is for any one-time
      * (per complication) set-up.
@@ -35,11 +40,28 @@ class CustomComplicationDataSourceService : ComplicationProviderService() {
      * is called.
      */
     override fun onComplicationActivated(
-        complicationId: Int,
-        dataType: Int,
-        complicationManager: ComplicationManager
+        complicationInstanceId: Int,
+        type: ComplicationType
     ) {
-        Log.d(TAG, "onComplicationActivated(): $complicationId")
+        Log.d(TAG, "onComplicationActivated(): $complicationInstanceId")
+    }
+
+    /*
+     * A request for representative preview data for the complication, for use in the editor UI.
+     * Preview data is assumed to be static per type. E.g. for a complication that displays the
+     * date and time of an event, rather than returning the real time it should return a fixed date
+     * and time such as 10:10 Aug 1st.
+     *
+     * This will be called on a background thread.
+     */
+    override fun getPreviewData(type: ComplicationType): ComplicationData {
+        return ShortTextComplicationData.Builder(
+        text = PlainComplicationText.Builder(text = "6!").build(),
+        contentDescription = PlainComplicationText
+            .Builder(text = "Short Text version of Number.").build()
+        )
+        .setTapAction(null)
+            .build()
     }
 
     /*
@@ -52,19 +74,20 @@ class CustomComplicationDataSourceService : ComplicationProviderService() {
      *   4. You triggered an update from your own class via the
      *       ProviderUpdateRequester.requestUpdate() method.
      */
-    override fun onComplicationUpdate(
-        complicationId: Int,
-        dataType: Int,
-        complicationManager: ComplicationManager
+    override fun onComplicationRequest(
+        request: ComplicationRequest,
+        listener: ComplicationRequestListener
     ) {
-        Log.d(TAG, "onComplicationUpdate() id: $complicationId")
+        Log.d(TAG, "onComplicationRequest() id: ${request.complicationInstanceId}")
 
         // Create Tap Action so that the user can trigger an update by tapping the complication.
         val thisDataSource = ComponentName(this, javaClass)
         // We pass the complication id, so we can only update the specific complication tapped.
         val complicationPendingIntent =
             ComplicationTapBroadcastReceiver.getToggleIntent(
-                this, thisDataSource, complicationId
+                this,
+                thisDataSource,
+                request.complicationInstanceId
             )
 
         // Retrieves your data, in this case, we grab an incrementing number from SharedPrefs.
@@ -73,53 +96,65 @@ class CustomComplicationDataSourceService : ComplicationProviderService() {
             0
         )
         val number = preferences.getInt(
-            ComplicationTapBroadcastReceiver
-                .getPreferenceKey(thisDataSource, complicationId), 0
+            ComplicationTapBroadcastReceiver.getPreferenceKey(
+                thisDataSource,
+                request.complicationInstanceId
+            ),
+            0
         )
         val numberText = String.format(Locale.getDefault(), "%d!", number)
-        val complicationData = when (dataType) {
-            ComplicationData.TYPE_SHORT_TEXT -> ComplicationData
-                .Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(ComplicationText.plainText(numberText))
+
+        val complicationData:ComplicationData? = when (request.complicationType) {
+
+            ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
+                text = PlainComplicationText.Builder(text = numberText).build(),
+                contentDescription = PlainComplicationText
+                    .Builder(text = "Short Text version of Number.").build()
+            )
                 .setTapAction(complicationPendingIntent)
                 .build()
-            ComplicationData.TYPE_LONG_TEXT -> ComplicationData
-                .Builder(ComplicationData.TYPE_LONG_TEXT)
-                .setLongText(ComplicationText.plainText("Number: $numberText"))
+
+            ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
+                text = PlainComplicationText.Builder(text = "Number: $numberText").build(),
+                contentDescription = PlainComplicationText
+                    .Builder(text = "Long Text version of Number.").build()
+            )
                 .setTapAction(complicationPendingIntent)
                 .build()
-            ComplicationData.TYPE_RANGED_VALUE -> ComplicationData
-                .Builder(ComplicationData.TYPE_RANGED_VALUE)
-                .setValue(number.toFloat())
-                .setMinValue(0f)
-                .setMaxValue(ComplicationTapBroadcastReceiver.MAX_NUMBER.toFloat())
-                .setShortText(ComplicationText.plainText(numberText))
+
+            ComplicationType.RANGED_VALUE -> RangedValueComplicationData.Builder(
+                value = number.toFloat(),
+                min = 0f,
+                max = ComplicationTapBroadcastReceiver.MAX_NUMBER.toFloat(),
+                contentDescription = PlainComplicationText
+                    .Builder(text = "Ranged Value version of Number.").build()
+            )
+                .setText(PlainComplicationText.Builder(text = numberText).build())
                 .setTapAction(complicationPendingIntent)
                 .build()
+
             else -> {
                 if (Log.isLoggable(TAG, Log.WARN)) {
-                    Log.w(TAG, "Unexpected complication type $dataType")
+                    Log.w(TAG, "Unexpected complication type ${request.complicationType}")
                 }
                 null
             }
         }
-        if (complicationData != null) {
-            complicationManager.updateComplicationData(complicationId, complicationData)
-        } else {
-            // If no data is sent, we still need to inform the ComplicationManager, so the update
-            // job can finish and the wake lock isn't held any longer than necessary.
-            complicationManager.noUpdateRequired(complicationId)
-        }
+
+        // Sends the complicationData to the system. If null is passed then any previous
+        // complication data will not be overwritten. Can be called on any thread.
+        // Should only be called once.
+        listener.onComplicationData(complicationData)
     }
 
     /*
      * Called when the complication has been deactivated.
      */
-    override fun onComplicationDeactivated(complicationId: Int) {
-        Log.d(TAG, "onComplicationDeactivated(): $complicationId")
+    override fun onComplicationDeactivated(complicationInstanceId: Int) {
+        Log.d(TAG, "onComplicationDeactivated(): $complicationInstanceId")
     }
 
     companion object {
-        private const val TAG = "CustomComplicationDataSourceService"
+        private const val TAG = "CompDataSourceService"
     }
 }

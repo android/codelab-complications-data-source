@@ -20,8 +20,8 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.support.wearable.complications.ProviderUpdateRequester
 import androidx.core.content.edit
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 
 /**
  * Simple [BroadcastReceiver] subclass for asynchronously incrementing an integer for any
@@ -29,6 +29,7 @@ import androidx.core.content.edit
  * a [PendingIntent] that triggers this receiver.
  */
 class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context, intent: Intent) {
         val extras = intent.extras ?: return
         val dataSource = extras.getParcelable<ComponentName>(EXTRA_DATA_SOURCE_COMPONENT) ?: return
@@ -44,9 +45,13 @@ class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
         value = (value + 1) % MAX_NUMBER
         sharedPreferences.edit { putInt(preferenceKey, value) }
 
-        // Request an update for the complication that has just been tapped.
-        val requester = ProviderUpdateRequester(context, dataSource)
-        requester.requestUpdate(complicationId)
+        // Request an update for the complication that has just been tapped, that is, the system
+        // call onComplicationUpdate on the specified complication data source.
+        val complicationDataSourceUpdateRequester = ComplicationDataSourceUpdateRequester.create(
+            context = context,
+            complicationDataSourceComponent = dataSource
+        )
+        complicationDataSourceUpdateRequester.requestUpdate(complicationId)
     }
 
     companion object {
@@ -72,7 +77,10 @@ class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
             // Pass complicationId as the requestCode to ensure that different complications get
             // different intents.
             return PendingIntent.getBroadcast(
-                context, complicationId, intent, PendingIntent.FLAG_UPDATE_CURRENT
+                context,
+                complicationId,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
         }
 
