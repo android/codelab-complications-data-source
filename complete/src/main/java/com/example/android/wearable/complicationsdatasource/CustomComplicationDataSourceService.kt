@@ -23,14 +23,21 @@ import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
-import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
+import com.example.android.wearable.complicationsdatasource.data.TAP_COUNTER_PREF_KEY
+import com.example.android.wearable.complicationsdatasource.data.dataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import java.util.Locale
 
 /**
  * Example watch face complication data source provides a number that can be incremented on tap.
+ *
+ * Note: This class uses the suspending variation of complication data source service to support
+ * async calls to the data layer, that is, to the DataStore saving the persistent values.
  */
-class CustomComplicationDataSourceService : ComplicationDataSourceService() {
+class CustomComplicationDataSourceService : SuspendingComplicationDataSourceService() {
 
     /*
      * Called when a complication has been activated. The method is for any one-time
@@ -72,12 +79,9 @@ class CustomComplicationDataSourceService : ComplicationDataSourceService() {
      *   2. A complication using this data source becomes active
      *   3. The period of time you specified in the manifest has elapsed (UPDATE_PERIOD_SECONDS)
      *   4. You triggered an update from your own class via the
-     *       ProviderUpdateRequester.requestUpdate() method.
+     *       ComplicationDataSourceUpdateRequester.requestUpdate method.
      */
-    override fun onComplicationRequest(
-        request: ComplicationRequest,
-        listener: ComplicationRequestListener
-    ) {
+    override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         Log.d(TAG, "onComplicationRequest() id: ${request.complicationInstanceId}")
 
         // Create Tap Action so that the user can trigger an update by tapping the complication.
@@ -90,21 +94,17 @@ class CustomComplicationDataSourceService : ComplicationDataSourceService() {
                 request.complicationInstanceId
             )
 
-        // Retrieves your data, in this case, we grab an incrementing number from SharedPrefs.
-        val preferences = getSharedPreferences(
-            ComplicationTapBroadcastReceiver.COMPLICATION_DATA_SOURCE_PREFERENCES_FILE_KEY,
-            0
-        )
-        val number = preferences.getInt(
-            ComplicationTapBroadcastReceiver.getPreferenceKey(
-                thisDataSource,
-                request.complicationInstanceId
-            ),
-            0
-        )
+
+        // Retrieves your data, in this case, we grab an incrementing number from Datastore.
+        val number:Int = applicationContext.dataStore.data
+            .map { preferences ->
+                preferences[TAP_COUNTER_PREF_KEY] ?: 0
+            }
+            .first()
+
         val numberText = String.format(Locale.getDefault(), "%d!", number)
 
-        val complicationData:ComplicationData? = when (request.complicationType) {
+        return when (request.complicationType) {
 
             ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
                 text = PlainComplicationText.Builder(text = numberText).build(),
@@ -140,11 +140,6 @@ class CustomComplicationDataSourceService : ComplicationDataSourceService() {
                 null
             }
         }
-
-        // Sends the complicationData to the system. If null is passed then any previous
-        // complication data will not be overwritten. Can be called on any thread.
-        // Should only be called once.
-        listener.onComplicationData(complicationData)
     }
 
     /*

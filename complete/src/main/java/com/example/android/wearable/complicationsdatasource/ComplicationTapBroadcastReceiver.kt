@@ -20,8 +20,14 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import androidx.core.content.edit
+import androidx.datastore.preferences.core.edit
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
+import com.example.android.wearable.complicationsdatasource.data.TAP_COUNTER_PREF_KEY
+import com.example.android.wearable.complicationsdatasource.data.dataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * Simple [BroadcastReceiver] subclass for asynchronously incrementing an integer for any
@@ -29,29 +35,45 @@ import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUp
  * a [PendingIntent] that triggers this receiver.
  */
 class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onReceive(context: Context, intent: Intent) {
+
+        // Retrieve complication values from Intent's extras.
         val extras = intent.extras ?: return
         val dataSource = extras.getParcelable<ComponentName>(EXTRA_DATA_SOURCE_COMPONENT) ?: return
         val complicationId = extras.getInt(EXTRA_COMPLICATION_ID)
 
-        // Retrieve data via SharedPreferences.
-        val preferenceKey = getPreferenceKey(dataSource, complicationId)
-        val sharedPreferences =
-            context.getSharedPreferences(COMPLICATION_DATA_SOURCE_PREFERENCES_FILE_KEY, 0)
-        var value = sharedPreferences.getInt(preferenceKey, 0)
+        // Required when using async code in onReceive().
+        val result = goAsync()
 
-        // Update data for complication.
-        value = (value + 1) % MAX_NUMBER
-        sharedPreferences.edit { putInt(preferenceKey, value) }
+        // Launches coroutine to update the DataStore counter value.
+        scope.launch {
+            try {
+                context.dataStore.edit { preferences ->
+                    val currentValue = preferences[TAP_COUNTER_PREF_KEY] ?: 0
 
-        // Request an update for the complication that has just been tapped, that is, the system
-        // call onComplicationUpdate on the specified complication data source.
-        val complicationDataSourceUpdateRequester = ComplicationDataSourceUpdateRequester.create(
-            context = context,
-            complicationDataSourceComponent = dataSource
-        )
-        complicationDataSourceUpdateRequester.requestUpdate(complicationId)
+                    // Update data for complication.
+                    val newValue = (currentValue + 1) % MAX_NUMBER
+
+                    preferences[TAP_COUNTER_PREF_KEY] = newValue
+                }
+
+                // Request an update for the complication that has just been tapped, that is,
+                // the system call onComplicationUpdate on the specified complication data
+                // source.
+                val complicationDataSourceUpdateRequester =
+                    ComplicationDataSourceUpdateRequester.create(
+                        context = context,
+                        complicationDataSourceComponent = dataSource
+                    )
+                complicationDataSourceUpdateRequester.requestUpdate(complicationId)
+
+            } finally {
+                // Always call finish, even if cancelled
+                result.finish()
+            }
+        }
     }
 
     companion object {
@@ -60,8 +82,6 @@ class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
         private const val EXTRA_COMPLICATION_ID =
             "com.example.android.wearable.complicationsdatasource.action.COMPLICATION_ID"
         const val MAX_NUMBER = 20
-        const val COMPLICATION_DATA_SOURCE_PREFERENCES_FILE_KEY =
-            "com.example.android.wearable.complicationsdatasource.COMPLICATION_DATA_SOURCE_PREFERENCES_FILE_KEY"
 
         /**
          * Returns a pending intent, suitable for use as a tap intent, that causes a complication to be
@@ -82,14 +102,6 @@ class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
                 intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
-        }
-
-        /**
-         * Returns the key for the shared preference used to hold the current state of a given
-         * complication.
-         */
-        fun getPreferenceKey(dataSource: ComponentName, complicationId: Int): String {
-            return dataSource.className + complicationId
         }
     }
 }
