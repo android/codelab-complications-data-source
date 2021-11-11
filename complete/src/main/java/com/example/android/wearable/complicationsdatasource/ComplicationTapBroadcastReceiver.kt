@@ -68,7 +68,6 @@ class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
                         complicationDataSourceComponent = dataSource
                     )
                 complicationDataSourceUpdateRequester.requestUpdate(complicationId)
-
             } finally {
                 // Always call finish, even if cancelled
                 result.finish()
@@ -88,7 +87,9 @@ class ComplicationTapBroadcastReceiver : BroadcastReceiver() {
          * toggled and updated.
          */
         fun getToggleIntent(
-            context: Context, dataSource: ComponentName, complicationId: Int
+            context: Context,
+            dataSource: ComponentName,
+            complicationId: Int
         ): PendingIntent {
             val intent = Intent(context, ComplicationTapBroadcastReceiver::class.java)
             intent.putExtra(EXTRA_DATA_SOURCE_COMPONENT, dataSource)

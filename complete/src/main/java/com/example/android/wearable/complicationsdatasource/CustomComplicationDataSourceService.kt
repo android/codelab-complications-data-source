@@ -63,11 +63,10 @@ class CustomComplicationDataSourceService : SuspendingComplicationDataSourceServ
      */
     override fun getPreviewData(type: ComplicationType): ComplicationData {
         return ShortTextComplicationData.Builder(
-        text = PlainComplicationText.Builder(text = "6!").build(),
-        contentDescription = PlainComplicationText
-            .Builder(text = "Short Text version of Number.").build()
+            text = PlainComplicationText.Builder(text = "6!").build(),
+            contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.").build()
         )
-        .setTapAction(null)
+            .setTapAction(null)
             .build()
     }
 
@@ -94,9 +93,8 @@ class CustomComplicationDataSourceService : SuspendingComplicationDataSourceServ
                 request.complicationInstanceId
             )
 
-
         // Retrieves your data, in this case, we grab an incrementing number from Datastore.
-        val number:Int = applicationContext.dataStore.data
+        val number: Int = applicationContext.dataStore.data
             .map { preferences ->
                 preferences[TAP_COUNTER_PREF_KEY] ?: 0
             }
