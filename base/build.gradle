@@ -51,11 +51,8 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
-    // UI
     implementation "androidx.core:core-ktx:$rootProject.coreKtxVersion"
-
-    implementation "com.google.android.support:wearable:$rootProject.wearableSupportLibraryVersion"
-    compileOnly "com.google.android.wearable:wearable:$rootProject.wearableSupportLibraryVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutinesAndroidVersion"
+    implementation "androidx.datastore:datastore-preferences:$rootProject.datastorePreferenceVersion"
+    implementation "androidx.wear.watchface:watchface-complications-data-source-ktx:$rootProject.watchfaceComplicationsDataStoreKTXVersion"
 }

@@ -31,8 +31,9 @@
         <meta-data
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
+
         <service
-            android:name="com.example.android.wearable.complicationsdatasource.CustomComplicationDataSourceService"
+            android:name=".CustomComplicationDataSourceService"
             android:exported="true"
             android:icon="@drawable/ic_watch_white"
             android:label="@string/complications_data_sources_service_label"
@@ -49,7 +50,7 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="600" />
         </service>
-        <receiver android:name="com.example.android.wearable.complicationsdatasource.ComplicationTapBroadcastReceiver" />
-    </application>
 
+        <receiver android:name=".ComplicationTapBroadcastReceiver" />
+    </application>
 </manifest>

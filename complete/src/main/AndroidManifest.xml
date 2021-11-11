@@ -33,7 +33,7 @@
             android:value="true" />
 
         <service
-            android:name="CustomComplicationDataSourceService"
+            android:name=".CustomComplicationDataSourceService"
             android:exported="true"
             android:icon="@drawable/ic_watch_white"
             android:label="@string/complications_data_sources_service_label"
@@ -66,6 +66,6 @@
                 android:value="0" />
         </service>
 
-        <receiver android:name="ComplicationTapBroadcastReceiver" />
+        <receiver android:name=".ComplicationTapBroadcastReceiver" />
     </application>
 </manifest>

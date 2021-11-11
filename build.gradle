@@ -28,9 +28,12 @@ buildscript {
 
         // App dependencies
         kotlinVersion = '1.5.21'
-        coreKtxVersion = '1.6.0'
 
-        wearableSupportLibraryVersion = '2.8.1'
+        coreKtxVersion = '1.7.0'
+        coroutinesAndroidVersion = '1.5.2'
+        datastorePreferenceVersion = '1.0.0'
+        watchfaceComplicationsDataStoreKTXVersion = '1.0.0-rc01'
+
     }
 
     repositories {

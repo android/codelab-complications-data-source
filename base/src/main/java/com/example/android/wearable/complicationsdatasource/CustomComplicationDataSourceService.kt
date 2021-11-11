@@ -15,14 +15,30 @@
  */
 package com.example.android.wearable.complicationsdatasource
 
-import android.support.wearable.complications.ComplicationManager
-import android.support.wearable.complications.ComplicationProviderService
+import android.content.ComponentName
 import android.util.Log
+import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
+import com.example.android.wearable.complicationsdatasource.data.TAP_COUNTER_PREF_KEY
+import com.example.android.wearable.complicationsdatasource.data.dataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import java.util.Locale
 
 /**
  * Example watch face complication data source provides a number that can be incremented on tap.
+ *
+ * Note: This class uses the suspending variation of complication data source service to support
+ * async calls to the data layer, that is, to the DataStore saving the persistent values.
  */
-class CustomComplicationDataSourceService : ComplicationProviderService() {
+class CustomComplicationDataSourceService : SuspendingComplicationDataSourceService() {
+
     /*
      * Called when a complication has been activated. The method is for any one-time
      * (per complication) set-up.
@@ -31,11 +47,27 @@ class CustomComplicationDataSourceService : ComplicationProviderService() {
      * is called.
      */
     override fun onComplicationActivated(
-        complicationId: Int,
-        dataType: Int,
-        complicationManager: ComplicationManager
+        complicationInstanceId: Int,
+        type: ComplicationType
     ) {
-        Log.d(TAG, "onComplicationActivated(): $complicationId")
+        Log.d(TAG, "onComplicationActivated(): $complicationInstanceId")
+    }
+
+    /*
+     * A request for representative preview data for the complication, for use in the editor UI.
+     * Preview data is assumed to be static per type. E.g. for a complication that displays the
+     * date and time of an event, rather than returning the real time it should return a fixed date
+     * and time such as 10:10 Aug 1st.
+     *
+     * This will be called on a background thread.
+     */
+    override fun getPreviewData(type: ComplicationType): ComplicationData {
+        return ShortTextComplicationData.Builder(
+            text = PlainComplicationText.Builder(text = "6!").build(),
+            contentDescription = PlainComplicationText.Builder(text = "Short Text version of Number.").build()
+        )
+            .setTapAction(null)
+            .build()
     }
 
     /*
@@ -46,24 +78,22 @@ class CustomComplicationDataSourceService : ComplicationProviderService() {
      *   2. A complication using this data source becomes active
      *   3. The period of time you specified in the manifest has elapsed (UPDATE_PERIOD_SECONDS)
      *   4. You triggered an update from your own class via the
-     *       ProviderUpdateRequester.requestUpdate() method.
+     *       ComplicationDataSourceUpdateRequester.requestUpdate method.
      */
-    override fun onComplicationUpdate(
-        complicationId: Int,
-        dataType: Int,
-        complicationManager: ComplicationManager
-    ) {
-        Log.d(TAG, "onComplicationUpdate() id: $complicationId")
+    override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
+        Log.d(TAG, "onComplicationRequest() id: ${request.complicationInstanceId}")
+
+        return null
     }
 
     /*
      * Called when the complication has been deactivated.
      */
-    override fun onComplicationDeactivated(complicationId: Int) {
-        Log.d(TAG, "onComplicationDeactivated(): $complicationId")
+    override fun onComplicationDeactivated(complicationInstanceId: Int) {
+        Log.d(TAG, "onComplicationDeactivated(): $complicationInstanceId")
     }
 
     companion object {
-        private const val TAG = "CustomComplicationDataSourceService"
+        private const val TAG = "CompDataSourceService"
     }
 }
