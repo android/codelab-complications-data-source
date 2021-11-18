@@ -28,6 +28,11 @@ android {
         versionName rootProject.versionName
     }
 
+    lintOptions {
+        warningsAsErrors true
+        ignore "OldTargetApi" // API >30 doesn't exist for Wear OS
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -46,13 +51,8 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
-    // UI
     implementation "androidx.core:core-ktx:$rootProject.coreKtxVersion"
-    implementation "androidx.percentlayout:percentlayout:$rootProject.androidxPercentlayoutVersion"
-    implementation "androidx.recyclerview:recyclerview:$rootProject.androidxRecyclerviewVersion"
-    implementation "com.google.android.gms:play-services-wearable:$rootProject.googlePlayServicesClientVersion"
-    implementation "com.google.android.support:wearable:$rootProject.wearableSupportLibraryVersion"
-    compileOnly "com.google.android.wearable:wearable:$rootProject.wearableSupportLibraryVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutinesAndroidVersion"
+    implementation "androidx.datastore:datastore-preferences:$rootProject.datastorePreferenceVersion"
+    implementation "androidx.wear.watchface:watchface-complications-data-source-ktx:$rootProject.watchfaceComplicationsDataStoreKTXVersion"
 }
